@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FCEDE4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="소리">
+  <title>소리 · 대화 보조</title>
+  <meta name="description" content="목소리 등록부터 대화 자막, 요약과 답장까지 체험하는 소리 UI 디자인 데모">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap">
+  <link rel="stylesheet" href="style.css?v=11141611">
+</head>
+<body>
+  <main class="phone">
+
+    <!-- ========== 1. 등록 ========== -->
+    <section class="screen" id="screen-enroll" data-screen="enroll">
+      <p class="eyebrow">목소리 등록</p>
+      <h1 class="title"><span id="enroll-name-title">대화 상대</span>님의 목소리를<br>기억할게요</h1>
+      <p class="sub">8초 동안 편하게 말해 주세요</p>
+
+      <label class="name-field">
+        <span>이름</span>
+        <input id="enroll-name" type="text" maxlength="10" placeholder="예: 지민" value="지민" autocomplete="off">
+      </label>
+
+      <div class="orb-wrap">
+        <button class="orb" id="enroll-mic" type="button" aria-label="녹음 시작">
+          <span class="orb-ring ring-1"></span>
+          <span class="orb-ring ring-2"></span>
+          <span class="orb-core">
+            <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true">
+              <rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/>
+              <path d="M5.5 11a6.5 6.5 0 0 0 13 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 17.5V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <div class="wave wave-enroll" id="enroll-wave" aria-hidden="true"></div>
+      <p class="enroll-status" id="enroll-status" aria-live="polite">마이크를 눌러 시작해요</p>
+
+      <label class="consent">
+        <input type="checkbox" id="enroll-consent">
+        <span class="check" aria-hidden="true"></span>
+        <span class="consent-text">
+          <strong>목소리 지문 저장에 동의했어요</strong>
+          <small>원본 녹음은 남기지 않아요</small>
+        </span>
+      </label>
+
+      <div class="people" id="enroll-people">
+        <button class="chip chip-add" id="enroll-add" type="button">+ 한 명 더</button>
+      </div>
+    </section>
+
+    <!-- ========== 2. 대화 (메신저) ========== -->
+    <section class="screen chat" id="screen-talk" data-screen="talk" hidden>
+      <header class="chat-head">
+        <button class="room" id="room-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="room-menu">
+          <span class="tile" id="room-tile" aria-hidden="true"></span>
+          <span class="room-text">
+            <span class="room-name"><span id="room-name">대화 모임</span>
+              <svg class="room-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="room-status" id="chat-status">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span class="mini-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <span id="chat-status-text">듣기 멈춤</span>
+            </span>
+          </span>
+        </button>
+        <button class="mic-toggle" id="chat-mic" type="button" aria-pressed="false" aria-label="듣기 시작">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="mic-slash" d="M4 4l16 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </button>
+        <button class="pill-toggle" id="chat-filter" type="button" aria-pressed="true">
+          <svg class="pill-check" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          등록된 사람만
+        </button>
+
+        <div class="room-menu" id="room-menu" hidden>
+          <p class="room-menu-label">대화 모임</p>
+          <ul class="room-list" id="room-list"></ul>
+          <button class="room-add" id="room-add" type="button">+ 새 모임 만들기</button>
+          <form class="room-new" id="room-form" hidden>
+            <label class="room-field">
+              <span>모임 이름</span>
+              <input id="room-input" type="text" maxlength="20" placeholder="예: 동아리 친구들" autocomplete="off">
+            </label>
+            <p class="room-menu-label">함께하는 사람</p>
+            <div class="member-pick" id="room-members"></div>
+            <p class="room-hint" id="room-hint"></p>
+            <div class="room-actions">
+              <button class="room-cancel" id="room-cancel" type="button">취소</button>
+              <button class="btn-warm" type="submit">모임 만들기</button>
+            </div>
+          </form>
+        </div>
+      </header>
+
+      <div class="chat-body" id="drawer-zone">
+        <ol class="captions" id="chat-list" aria-live="polite"></ol>
+        <div class="empty" id="chat-empty">
+          <span class="empty-orb" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="30" height="30"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <p>마이크를 켜면<br>여기에 자막이 나와요</p>
+          <button class="btn-warm" id="chat-start" type="button">듣기 시작</button>
+        </div>
+        <button class="new-below" id="chat-new" type="button" hidden>새 자막 ↓</button>
+      </div>
+
+      <footer class="composer-area" id="sheet-zone">
+        <div class="grip" id="sheet-grip" role="button" tabindex="0" aria-label="지금까지의 대화 요약 열기 (위로 쓸어 올리기)">
+          <span class="grip-bar" aria-hidden="true"></span>
+        </div>
+        <div class="suggest" id="chat-suggest" hidden>
+          <p class="suggest-label">이렇게 답해 볼까요?</p>
+          <div class="chips-row" id="chat-chips"></div>
+        </div>
+        <form class="composer" id="chat-form">
+          <input id="chat-input" type="text" placeholder="할 말을 입력하세요" autocomplete="off" enterkeyhint="send" aria-label="할 말 입력">
+          <button class="speak-btn" type="submit">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            말하기
+          </button>
+        </form>
+      </footer>
+    </section>
+
+    <!-- ========== 요약창: 대화 화면 아래에 숨어 있다가 위로 쓸어 올리면 나타남 ========== -->
+    <div class="sheet-backdrop" id="sheet-backdrop"></div>
+    <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-hidden="true" inert>
+      <header class="sheet-head" id="sheet-head">
+        <span class="grip-bar" aria-hidden="true"></span>
+        <h2 class="sheet-title" id="sheet-title">지금까지의 대화</h2>
+        <p class="sheet-sub" id="sheet-time">대화가 쌓이면 자동으로 이어 써요</p>
+      </header>
+      <div class="sheet-body">
+        <p class="sheet-empty" id="sheet-empty">아직 정리할 대화가 없어요.<br>대화가 시작되면 여기에 요약이 생겨요.</p>
+        <div id="sheet-content" hidden>
+          <article class="summary" id="sheet-card">
+            <p class="summary-label">정한 것</p>
+            <p class="summary-decided" id="sheet-decided"></p>
+            <p class="summary-todo" id="sheet-todo"></p>
+            <hr>
+            <p class="summary-label">분위기</p>
+            <p class="summary-mood" id="sheet-mood"></p>
+            <div class="mood-bar" id="sheet-mood-bar" aria-hidden="true"></div>
+          </article>
+          <h3 class="sheet-h3">지금 흐름</h3>
+          <p class="sheet-flow" id="sheet-flow"></p>
+          <h3 class="sheet-h3">감정 비율</h3>
+          <ul class="mood-legend" id="sheet-legend"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 설정 서랍: 왼쪽에 숨어 있다가 왼쪽→오른쪽으로 쓸면 나타남 (항목은 5단계에서) ========== -->
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+    <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" aria-hidden="true" inert>
+      <h2 class="drawer-title" id="drawer-title">
+        <svg class="gear" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        설정
+      </h2>
+
+      <div class="settings">
+        <h3 class="set-h">자막 표시 방식</h3>
+        <p class="set-desc">같은 말이 어떻게 보이는지 비교해 보고, 가장 편한 방식을 골라 주세요.</p>
+        <div class="mode-list" role="radiogroup" aria-label="자막 표시 방식">
+          <label class="mode-card">
+            <span class="mode-top"><input type="radio" name="caption-mode" value="basic"><span class="radio" aria-hidden="true"></span><strong>기본 자막</strong><small>말한 내용만</small></span>
+            <span class="mode-preview"><span class="pv-text">준호: 아 맞다, 서버 또 터졌어요. 진짜 짜증나네</span></span>
+          </label>
+          <label class="mode-card">
+            <span class="mode-top"><input type="radio" name="caption-mode" value="described"><span class="radio" aria-hidden="true"></span><strong>설명형 자막</strong><small>배리어프리 자막처럼</small></span>
+            <span class="mode-preview"><span class="pv-desc">[준호 · 화난 목소리로, 빠르고 크게]</span><span class="pv-text">아 맞다, 서버 또 터졌어요. 진짜 짜증나네</span></span>
+          </label>
+          <label class="mode-card">
+            <span class="mode-top"><input type="radio" name="caption-mode" value="visual"><span class="radio" aria-hidden="true"></span><strong>비유형 자막</strong><small>색 · 감정 · 글자 크기</small></span>
+            <span class="mode-preview pv-visual">
+              <span class="avatar avatar-sm tone-1" aria-hidden="true">준</span>
+              <span class="pv-body">
+                <span class="pv-bubble">아 맞다, 서버 또 터졌어요. 진짜 짜증나네</span>
+                <span class="tag tag-emo emo-angry"><i class="emo-dot"></i>분노</span>
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <h3 class="set-h">세부 설정</h3>
+        <div class="set-card">
+          <div class="set-size-top"><strong>기본 글자 크기</strong><span id="set-size-val">17px</span></div>
+          <input class="set-range" id="set-size" type="range" min="14" max="26" step="1" aria-label="기본 글자 크기">
+          <div class="set-size-ends" aria-hidden="true"><span>가</span><span>가</span></div>
+        </div>
+        <div class="set-card set-list">
+          <label class="set-row"><span>감정 색상</span><input type="checkbox" data-key="emoColor"><span class="check" aria-hidden="true"></span></label>
+          <label class="set-row"><span>감정 표시와 이름</span><input type="checkbox" data-key="emoTag"><span class="check" aria-hidden="true"></span></label>
+          <label class="set-row"><span>감정에 따라 글자 크기 바꾸기</span><input type="checkbox" data-key="emoSize"><span class="check" aria-hidden="true"></span></label>
+          <label class="set-row"><span>말 빠르기 · 높낮이 표시<small>예: 빠르게 · 크게</small></span><input type="checkbox" data-key="tone"><span class="check" aria-hidden="true"></span></label>
+          <label class="set-row is-off"><span>말하는 사람 방향 표시<small>아이폰 웹에서는 아직 쓸 수 없어요</small></span><input type="checkbox" disabled><span class="check" aria-hidden="true"></span></label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ========== 마이크를 못 쓸 때 안내 ========== -->
+    <div class="overlay" id="mic-guide" role="alertdialog" aria-modal="true" aria-labelledby="mic-guide-title" hidden>
+      <div class="guide-card">
+        <span class="guide-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="30" height="30"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </span>
+        <h2 class="guide-title" id="mic-guide-title">마이크를 쓸 수 없어요</h2>
+        <p class="guide-why" id="mic-guide-why"></p>
+        <ol class="guide-steps" id="mic-guide-steps"></ol>
+        <div class="guide-actions">
+          <button class="room-cancel" id="mic-guide-close" type="button">닫기</button>
+          <button class="btn-warm" id="mic-guide-retry" type="button">다시 시도</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 크게 보여주기: 시끄러운 곳에서 상대에게 화면을 보여줄 때 ========== -->
+    <div class="big-say" id="big-say" role="dialog" aria-modal="true" aria-label="크게 보여주기" tabindex="-1" hidden>
+      <p class="big-say-text" id="big-say-text"></p>
+      <p class="big-say-hint">화면을 누르면 닫혀요</p>
+    </div>
+
+    <!-- ========== 아래 탭 ========== -->
+    <nav class="tabs" aria-label="화면 이동">
+      <button type="button" data-go="enroll" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+        <span>등록</span>
+      </button>
+      <button type="button" data-go="talk">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5z"/></svg>
+        <span>대화</span>
+      </button>
+    </nav>
+  </main>
+
+  <script src="mock.js?v=11141611"></script>
+  <script src="app.js?v=11141611"></script>
+  <script src="sheet.js?v=11141611"></script>
+  <script src="drawer.js?v=11141611"></script>
+  <script src="settings.js?v=11141611"></script>
+  <script src="mic.js?v=11141611"></script>
+  <script src="speak.js?v=11141611"></script>
+  <script src="api.js?v=11141611"></script>
+  <script src="chat.js?v=11141611"></script>
+</body>
+</html>
